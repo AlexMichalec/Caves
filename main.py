@@ -1,6 +1,7 @@
 import time
 import random
 import os
+import json
 from msvcrt import getch
 
 import teksty
@@ -293,7 +294,7 @@ class Gracz:
         self.coinbag = 0
         self.ostatnio_zebrane = []
         self.dodatkowe_swiatlo = 0
-        self.ekwipunek = {"Worek na monety": [1, 0]}
+        self.ekwipunek = {"Worek na monety": [1, ekwipunek.WorekNaMonety(self.gra)]}
         self.ekwipunek_lista = ["Worek na monety"]
         self.czy_buty_zalozone = False
         self.aktywne = []
@@ -774,13 +775,54 @@ Legenda mapy:
 if __name__ == '__main__':
     getch = _Getch()
     G = Gra()
-    """
+    ""
     bdb = ekwipunek.ButyDoBiegania(G)
     G.gracz.add_ekwipunek(bdb)
-  #  bf = ekwipunek.ButyFlasha(G)
- #   G.gracz.add_ekwipunek(bf)
-  #  for i in range(80):
-  #      k = ekwipunek.Kufer(G,ekwipunek.AllItems())
- #       G.gracz.add_ekwipunek(k.zawartosc)
+    bf = ekwipunek.ButyFlasha(G)
+    G.gracz.add_ekwipunek(bf)
+    for i in range(80):
+        k = ekwipunek.Kufer(G,ekwipunek.AllItems())
+        G.gracz.add_ekwipunek(k.zawartosc)
     #G.gracz.ruch(G.mapa,"4")"""
-    G.graj(True)
+#    G.graj(True)
+
+
+
+    with open ("hello.txt", "w") as myFile:
+        myFile.write(G.gracz.imie)
+        myFile.write("\n")
+        myFile.write(str(G.gracz.punkty))
+        myFile.write("\n")
+        myFile.write(str(G.gracz.coinbag))
+        myFile.write("\n")
+        print(G.gracz.ekwipunek_lista)
+        myFile.write(str(sorted(G.gracz.ekwipunek_lista)))
+        myFile.write("\n")
+        temp = [(x[0],x[1].name) for x in list(G.gracz.ekwipunek.values())]
+        print(temp)
+        myFile.write(str(temp))
+        myFile.write("\n")
+
+
+
+    with open ("hello.txt") as myFile:
+        temp = myFile.readline().rstrip()
+        print(temp)
+        temp = int(myFile.readline())
+        print(temp)
+        temp = int(myFile.readline())
+        print(temp)
+        temp = myFile.readline()
+        temp = temp[2:-3].split("', '")
+        print(temp)
+        temp = myFile.readline()
+        temp = temp[2:-3].split("), (")
+        temp = [(x.split(", ")[0],x.split(", ")[1]) for x in temp]
+        temp = [(int(x[0]),x[1][1:-1]) for x in temp]
+        slownik = ekwipunek.AllItems().items
+        slownik = {x(Gra()).name:x for x in slownik}
+        temp = [(x[0],slownik[x[1]](Gra())) for x in temp]
+        print(temp)
+        print(temp[0])
+        print(slownik)
+

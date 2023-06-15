@@ -17,9 +17,9 @@ class Kufer():
 class AllItems():
     def __init__(self):
         self.items = [WorekZlota, UniwersalnyKlucz, MalaSwieczka, Swieczka, DuzaSwieczka, Pochodnia, ButyDoBiegania,
-                      MiksturaPredkosci, MiksturaMidasa, ButyFlasha]
-        self.probability = [0.4, 0.3, 0.3, 0.2, 0.1, 0.1, 0, 0.2, 0.2, 0]
-        self.price = [-1, 40, 5, 10, 20, 50, 200, 30, 70, 999]
+                      MiksturaPredkosci, MiksturaMidasa, ButyFlasha, WorekNaMonety]
+        self.probability = [0.4, 0.3, 0.3, 0.2, 0.1, 0.1, 0, 0.2, 0.2, 0,0]
+        self.price = [-1, 40, 5, 10, 20, 50, 200, 30, 70, 999, 0]
 
     def add(self, item, prob, price):
         self.items.append(item)
@@ -200,3 +200,8 @@ class MiksturaMidasa(Mikstura):
     def deactivate(self):
         super(MiksturaMidasa, self).deactivate()
         self.gra.gracz.mnoznik_monet //= 2
+
+class WorekNaMonety(Ekwipunek):
+    def __init__(self,gra):
+        super(WorekNaMonety, self).__init__(gra)
+        self.name = "Worek na Monety"
