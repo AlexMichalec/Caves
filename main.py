@@ -343,7 +343,7 @@ class Gracz:
             szlak = szlak + szlak * self.dodatkowe_kroki
         for s in szlak:
             new_pos = [self.x, self.y]
-            if s not in "wasd1234":
+            if s not in "wasd1234zc":
                 continue
             if s == "w":
                 new_pos[0] -= 1
@@ -354,15 +354,32 @@ class Gracz:
             if s == "d":
                 new_pos[1] += 1
 
+            if s == "z":
+                self.gra.save()
+                print("Zapisano")
+                time.sleep(1)
+                continue
+            if s == "c":
+                self.gra.open()
+                time.sleep(1)
+                continue
             if s in "123":
                 if int(s) < len(self.ekwipunek_lista):
                     self.action(int(s))
             if s == "4":
                 os.system("cls")
                 print(self.gra.interfejs(czy_ekwipunek=True))
-                q = input("")
+                q = getch()
+                q = str(q)[2]
+                if q.isnumeric():
+                    if int(q) not in range(1, len(self.ekwipunek_lista)):
+                        q = "l"
                 while not (q.isnumeric() or q == "x"):
-                    q = input("Podaj nr przedmiotu, który chesz użyć albo 'x' aby wyjść")
+                    print("Podaj nr przedmiotu, który chesz użyć albo 'x', aby wyjść")
+                    q = str(getch())[2]
+                    if q.isnumeric():
+                        if int(q) not in range(1,len(self.ekwipunek_lista)):
+                            q="l"
                 if q == "x":
                     continue
                 qq = int(q)
@@ -431,12 +448,56 @@ class Gra:
         # self.mapa.add_monety(self.ilosc_monet)
         self.mapa.rysuj_test(2)
         self.gracz.monety_do_zebrania = 2
+        self.autozapis = True
         self.new_level()
 
-    def graj_intro(self):
+    def intro_animation(self):
+        ""
+        for t in teksty.intros:
+            print(t)
+            time.sleep(0.3)
+            os.system("cls")
+
+        temp = teksty.intros.pop()
+        teksty.intros.reverse()
+        for t in teksty.intros:
+            print(t)
+            time.sleep(0.3)
+            os.system("cls")
+        teksty.intros.reverse()
+        teksty.intros.append(temp)
         print(teksty.intro)
-        time.sleep(2.5)
+        time.sleep(1.5)
+        """
+        m = 110
+        a = 8
+        for i in range(m-a):
+            temp = teksty.intro.split(sep="\n")
+            temp = [" " * i + x[i:i+a] for x in temp]
+            temp = "\n".join(temp)
+            print(temp)
+            time.sleep(0.01)
+            os.system("cls")
+
+        for i in range(m-a,0,-1):
+            temp = teksty.intro.split(sep="\n")
+            temp = [" " * i + x[i:i+a] for x in temp]
+            temp = "\n".join(temp)
+            print(temp)
+            time.sleep(0.01)
+            os.system("cls")"""
+
+
+    def graj_intro(self):
+        self.intro_animation()
         wiad(1, False, True, wiadomosc="Witaj w Świecie Jaskiń Młody Podróżniku!")
+        if os.path.isfile("save.data"):
+            wiad(1, False, True, wiadomosc="Czy chcesz wczytać zapisaną grę?")
+            print("(1 - Tak, O - Nie) ?: ")
+            ch = str(getch())[2]
+            if ch == "1":
+                self.open()
+                return
         wiad(1, False, True, wiadomosc="Podaj proszę swoje imię!")
         self.gracz.imie = input("?: ")
         wiad(1, False, True, wiadomosc=f"Miło Cię poznać {self.gracz.imie}!")
@@ -455,40 +516,6 @@ class Gra:
             wiad(1, False, True, wiadomosc="W takim razie zapraszamy do gry, miłej zabawy :D")
             return
         wiad(1, False, True, wiadomosc="Przykro nam instrukcja jeszcze nie gotowa, ale na pewno sobie poradzisz ^^")
-
-    def graj_intro_old(self):
-        print("\n")
-        print("Witaj poszukiwaczu przygód! :D")
-        time.sleep(1)
-        x = input("\nCzy jesteś gotów rozpocząć podróż? :3\n"
-                  "1 - Tak jestem!\n"
-                  "0 - Nie potrzebuję najpierw Instrukcji\n\n"
-                  "?: ")
-        while x not in ["1", "0"]:
-            x = input("\nWybierz 1 lub 0\n?: ")
-        if x == "1":
-            return
-        if x == "0":
-            os.system("cls")
-            print("""\n\n\nHej, witaj młody eksploratorze jaskiń!
-Twoim zadaniem będzie poszukiwanie złotych monet,
-kluczy oraz innych cennych artefaktów w coraz
-głębszych jaskiniach. Aby sterować swoją
-postacią wpisuj komendy [w][a][s][d] bez przecinków,
-możesz wpisać ile chcesz kroków, Twoja postać
-ruszy z miejsca dopiero po kliknięciu [enter]
-
-Legenda mapy:
- X  - Ty, a raczej Twoja postać ^^
-[ ] - ściana, tutaj nie wejdziesz
-(k) - klucz, zbierz je wszystkie by przejść dalej
- @  - wyjście, pojawi się gdy już zbierzesz wszystkie klucze
-(1) - moneta, mogą mieć różne wartości, warto je zbierać
-(A) - artefakt, czekają na odkrycie w najgłebszych jaskiniach
-\n\n""")
-            x = input("Czy wszystko jasne? (1-Tak, 0-Nie)\n?: ")
-            while x != "1":
-                x = input("\nOk, bez pośpiechu :p (1-gotów)\n?: ")
 
     def ciemnosc(self, a=5, czy_mig_mig=False):
         a += self.gracz.dodatkowe_swiatlo
@@ -539,6 +566,9 @@ Legenda mapy:
             self.gracz.ranga = "Dziecko Szatana"
 
     def new_level(self):
+        if self.autozapis:
+            self.save()
+
         self.level += 1
         x = 4 + self.level * 3
         y = 4 + self.level * 4
@@ -579,6 +609,8 @@ Legenda mapy:
             temp = str(getch())[2]
             if "x" in temp:
                 wiad(1, True)
+                if self.autozapis:
+                    self.save()
                 break
             if self.gracz.ruch(self.mapa, temp):
                 self.new_level()
@@ -651,8 +683,8 @@ Legenda mapy:
         for i in range(12 - len(self.gracz.ekwipunek_lista)):
             temp += " " * 45 + "\n"
 
-        temp += f"{'Wpisz nr przedmiotu, który chcesz użyć':^45}" + "\n"
-        temp += f"{'lub x aby wrócić do gry + kliknij enter':^45}" + "\n"
+        temp += f"{'Wybierz nr przedmiotu, którego chcesz użyć':^45}" + "\n"
+        temp += f"{'lub x, aby wrócić do gry':^45}" + "\n"
         return temp
 
     def interfejs(self, wys=18, szer=45, czy_znaleziono_przedmiot=False, przedmiot=0, czy_ekwipunek=False,
@@ -771,58 +803,53 @@ Legenda mapy:
             else:
                 print(self.interfejs())
 
+    def save(self):
+        with open("save.data", "w") as myFile:
+            myFile.write(self.gracz.imie)
+            myFile.write("\n")
+            myFile.write(str(self.gracz.punkty))
+            myFile.write("\n")
+            myFile.write(str(self.gracz.coinbag))
+            myFile.write("\n")
+            temp = [(x[0], x[1].name) for x in list(self.gracz.ekwipunek.values())]
+            myFile.write(str(temp))
+            myFile.write("\n")
+
+    def open(self):
+        if not os.path.isfile("save.data"):
+            return False
+        with open("save.data") as myFile:
+            self.gracz.imie = myFile.readline().rstrip()
+            self.gracz.punkty = int(myFile.readline())
+            self.aktualizuj_range()
+            self.gracz.coinbag = int(myFile.readline())
+            temp = myFile.readline()
+            temp = temp[2:-3].split("), (")
+            temp = [(x.split(", ")[0], x.split(", ")[1]) for x in temp]
+            temp = [(int(x[0]), x[1][1:-1]) for x in temp]
+            slownik = ekwipunek.AllItems().items
+            slownik = {x(G).name: x for x in slownik}
+            temp = [(x[0], slownik[x[1]](self)) for x in temp]
+            self.gracz.ekwipunek_lista = []
+            self.gracz.ekwipunek = {}
+            for t in temp:
+                self.gracz.add_ekwipunek(t[1])
+                self.gracz.ekwipunek[t[1].name][0] = t[0]
+            self.gracz.level = 1
+
 
 if __name__ == '__main__':
     getch = _Getch()
     G = Gra()
-    ""
+    """""
     bdb = ekwipunek.ButyDoBiegania(G)
-    G.gracz.add_ekwipunek(bdb)
+  #  G.gracz.add_ekwipunek(bdb)
     bf = ekwipunek.ButyFlasha(G)
-    G.gracz.add_ekwipunek(bf)
-    for i in range(80):
+ #   G.gracz.add_ekwipunek(bf)
+    for i in range(20):
         k = ekwipunek.Kufer(G,ekwipunek.AllItems())
         G.gracz.add_ekwipunek(k.zawartosc)
     #G.gracz.ruch(G.mapa,"4")"""
-#    G.graj(True)
-
-
-
-    with open ("hello.txt", "w") as myFile:
-        myFile.write(G.gracz.imie)
-        myFile.write("\n")
-        myFile.write(str(G.gracz.punkty))
-        myFile.write("\n")
-        myFile.write(str(G.gracz.coinbag))
-        myFile.write("\n")
-        print(G.gracz.ekwipunek_lista)
-        myFile.write(str(sorted(G.gracz.ekwipunek_lista)))
-        myFile.write("\n")
-        temp = [(x[0],x[1].name) for x in list(G.gracz.ekwipunek.values())]
-        print(temp)
-        myFile.write(str(temp))
-        myFile.write("\n")
-
-
-
-    with open ("hello.txt") as myFile:
-        temp = myFile.readline().rstrip()
-        print(temp)
-        temp = int(myFile.readline())
-        print(temp)
-        temp = int(myFile.readline())
-        print(temp)
-        temp = myFile.readline()
-        temp = temp[2:-3].split("', '")
-        print(temp)
-        temp = myFile.readline()
-        temp = temp[2:-3].split("), (")
-        temp = [(x.split(", ")[0],x.split(", ")[1]) for x in temp]
-        temp = [(int(x[0]),x[1][1:-1]) for x in temp]
-        slownik = ekwipunek.AllItems().items
-        slownik = {x(Gra()).name:x for x in slownik}
-        temp = [(x[0],slownik[x[1]](Gra())) for x in temp]
-        print(temp)
-        print(temp[0])
-        print(slownik)
+ #   G.open()
+    G.graj()
 
