@@ -71,6 +71,8 @@ def znak(j, czy_mig_mig=False):
         return "(E)"  # <- Ekwipunek
     if j == 7:
         return " $ "
+    if j == 8:
+        return " * "
     if j == 9:
         return " @ "
 
@@ -566,9 +568,6 @@ class Gra:
             self.gracz.ranga = "Dziecko Szatana"
 
     def new_level(self):
-        if self.autozapis:
-            self.save()
-
         self.level += 1
         x = 4 + self.level * 3
         y = 4 + self.level * 4
@@ -613,6 +612,8 @@ class Gra:
                     self.save()
                 break
             if self.gracz.ruch(self.mapa, temp):
+                if self.autozapis:
+                    self.save()
                 self.new_level()
                 if not czy_pominac_ladowanie:
                     laduj(self.gracz.level)
@@ -852,4 +853,8 @@ if __name__ == '__main__':
     #G.gracz.ruch(G.mapa,"4")"""
  #   G.open()
     G.graj()
+    A = ekwipunek.AllItems()
+    temp = [(A.items[i](G).name,A.price[i]) for i in range(len(A.items)) if A.items[i](G).czy_do_kupienia]
+    temp.sort(key=lambda x: x[1])
+    print(temp)
 

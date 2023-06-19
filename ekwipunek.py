@@ -17,9 +17,9 @@ class Kufer():
 class AllItems():
     def __init__(self):
         self.items = [WorekZlota, UniwersalnyKlucz, MalaSwieczka, Swieczka, DuzaSwieczka, Pochodnia, ButyDoBiegania,
-                      MiksturaPredkosci, MiksturaMidasa, ButyFlasha, WorekNaMonety]
-        self.probability = [0.4, 0.3, 0.3, 0.2, 0.1, 0.1, 0, 0.2, 0.2, 0,0]
-        self.price = [-1, 40, 5, 10, 20, 50, 200, 30, 70, 999, 0]
+                      MiksturaPredkosci, MiksturaMidasa, ButyFlasha, WorekNaMonety, NicAriadny, Drogowskaz]
+        self.probability = [0.4, 0.3, 0.3, 0.2, 0.1, 0.1, 0, 0.2, 0.2, 0,0, 0.0, 0.1]
+        self.price = [-1, 40, 5, 10, 20, 50, 200, 30, 70, 999, 0, 2999, 140]
 
     def add(self, item, prob, price):
         self.items.append(item)
@@ -205,3 +205,62 @@ class WorekNaMonety(Ekwipunek):
     def __init__(self,gra):
         super(WorekNaMonety, self).__init__(gra)
         self.name = "Worek na Monety"
+        self.czy_do_kupienia = False
+
+class NicAriadny(Ekwipunek):
+    def __init__(self,gra):
+        super(NicAriadny, self).__init__(gra)
+        self.name = "Nić Ariadny"
+        self.description = "Wbrew pozorom to nie artefakt, pozwala znaleźć szybką drogę do wyjścia jeśli masz już wszystkie klucze ^^"
+        self.czy_do_kupienia = True
+        self.czy_mozna_uzyc = True
+        self.czy_jednorazowy = False
+        self.czy_uzywa_sie_automatycznie = False
+        self.value = 2999
+        self.price = 2999
+
+    def use(self):
+        if self.gra.gracz.klucze_zebrane < self.gra.gracz.klucze_do_zebrania:
+            return False
+        x = self.gra.gracz.x
+        y = self.gra.gracz.y
+        wazne = (0, 2, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+        kolejka = [(x, y,[])]
+        nms = []
+        while len(kolejka) > 0:
+            temp = kolejka.pop(0)
+            if self.gra.mapa.wyjscie_x == temp[0] and self.gra.mapa.wyjscie_y == temp[1]:
+                nms = temp[2]
+                break
+
+            if self.gra.mapa.tab[temp[0] + 1][temp[1]] in wazne:
+                self.gra.mapa.tab[temp[0] + 1][temp[1]] += 40
+                kolejka.append((temp[0] + 1, temp[1],temp[2]+[(temp[0],temp[1])]))
+            if self.gra.mapa.tab[temp[0] - 1][temp[1]] in wazne:
+                self.gra.mapa.tab[temp[0] - 1][temp[1]] += 40
+                kolejka.append((temp[0] - 1, temp[1],temp[2]+[(temp[0],temp[1])]))
+            if self.gra.mapa.tab[temp[0]][temp[1] + 1] in wazne:
+                self.gra.mapa.tab[temp[0]][temp[1] + 1] += 40
+                kolejka.append((temp[0], temp[1] + 1,temp[2]+[(temp[0],temp[1])]))
+            if self.gra.mapa.tab[temp[0]][temp[1] - 1] in wazne:
+                self.gra.mapa.tab[temp[0]][temp[1] - 1] += 40
+                kolejka.append((temp[0], temp[1] - 1,temp[2]+[(temp[0],temp[1])]))
+
+        for i, x in enumerate(self.gra.mapa.tab):
+            for j, y in enumerate(x):
+                if y >= 40:
+                    self.gra.mapa.tab[i][j] -= 40
+
+
+        for q in nms:
+            if self.gra.mapa.tab[q[0]][q[1]] in (0,2):
+                self.gra.mapa.tab[q[0]][q[1]] = 8
+
+class Drogowskaz(NicAriadny):
+    def __init__(self,gra):
+        super(Drogowskaz, self).__init__(gra)
+        self.name = "Drogowskaz"
+        self.description = "Sprytny przedmiot pozwalający na znalezienie drogi do wyjścia (po zebraniu wszystkich kluczy)"
+        self.czy_jednorazowy = True
+        self.value = 140
+        self.price = 140
