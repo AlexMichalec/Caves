@@ -7,6 +7,7 @@ from msvcrt import getch
 import teksty
 import ekwipunek
 
+
 ARTFEFACTS = ["Średniowieczne Dildo", "Upadła Madonna z Wielkim Cycem", "Fragment Mozaiki", "Skamnieniały Nos",
               "Skamieniała Wiewiórka", "Stare Skarpety", "Stopa z Wyspy Wielkanocnej", "Biblia po hiszpańsku",
               "Drewniana Zabawka Piesek", "Powód do Życia", "Rubin", "Szmaragd", "Kamień Filozoficzny",
@@ -80,60 +81,9 @@ def znak(j, czy_mig_mig=False):
         return f"({j % 10})"
 
 
-def laduj(poziom=4, proc=0):
-    os.system("cls")
-    print("\n" * 12)
-    temp = f"Poziom {poziom}."
-    print(f"{temp:^120}")
-    if proc != 0:
-        temp = "|" + "-" * proc + " " * (30 - proc) + "|"
-        print(f"{temp:^120}")
-    print("\n" * 8)
-    time.sleep(random.random() / 2)
-    if proc < 30:
-        newproc = min(30, proc + random.randint(1, 8))
-        laduj(poziom, newproc)
-    else:
-        wiad(poziom)
 
 
-def wiad(level=1, czy_koniec=False, czy_inne=False, wiadomosc=""):
-    text = ""
-    match level:
-        case 1:
-            text = "Uważaj na głowę podczas swoich eksploracji!"
-        case 2:
-            text = "Pamiętaj, żeby zebrać wszystkie monety przed przejściem dalej!"
-        case 3:
-            text = "Za zebrane monety możesz kupić pomocne przedmioty w sklepie ^^"
-        case 4:
-            text = "Uważaj, jaskinie stają się coraz większe i ciemniejsze..."
-        case 5:
-            text = "Im głębsze jaskinie tym większa szansa na znalezienie cennych artefaktów."
-        case 6:
-            text = "Prawdziwy z Ciebie poszukiwacz przygód, byle tak dalej! :D"
-        case 7:
-            text = "W mrokach podziemii świeczki i pochodnie są bardzo przydatne ^^"
-        case 8:
-            text = "Większość przedmiotów działa tylko raz, ale są i takie których można używać wielokrotnie"
-    if czy_koniec:
-        text = "Dzięki za wspólną wędrówkę, do zobaczenia następnym razem ^^"
-    if czy_inne:
-        text = wiadomosc
-    if text == "":
-        return
-    temp = ""
-    for w in text.split():
-        os.system("cls")
-        print("\n" * 13)
-        temp = temp + " " + w
-        print(f"{temp:^120}")
-        print("\n" * 8)
-        time.sleep(0.3)
-    time.sleep(0.5)
-    if czy_koniec:
-        temp = "<kliknij [enter] aby wyjść>"
-        input(f"{temp:^120}")
+
 
 
 class Mapa:
@@ -393,7 +343,7 @@ class Gracz:
                 continue
             if m == 5:
                 artefakt = random.choice(ARTFEFACTS)
-                wiad(1, False, czy_inne=True, wiadomosc=f"Brawo udało Ci się znaleźć: {artefakt}")
+                self.gra.wiad(1, False, czy_inne=True, wiadomosc=f"Brawo udało Ci się znaleźć: {artefakt}")
                 self.ostatnio_zebrane.append(artefakt)
                 self.punkty += 20
             if m == 6:
@@ -492,32 +442,32 @@ class Gra:
 
     def graj_intro(self):
         self.intro_animation()
-        wiad(1, False, True, wiadomosc="Witaj w Świecie Jaskiń Młody Podróżniku!")
+        self.wiad(1, False, True, wiadomosc="Witaj w Świecie Jaskiń Młody Podróżniku!")
         if os.path.isfile("save.data"):
-            wiad(1, False, True, wiadomosc="Czy chcesz wczytać zapisaną grę?")
+            self.wiad(1, False, True, wiadomosc="Czy chcesz wczytać zapisaną grę?")
             print("(1 - Tak, O - Nie) ?: ")
             ch = str(getch())[2]
             if ch == "1":
                 self.open()
                 return
-        wiad(1, False, True, wiadomosc="Podaj proszę swoje imię!")
+        self.wiad(1, False, True, wiadomosc="Podaj proszę swoje imię!")
         self.gracz.imie = input("?: ")
-        wiad(1, False, True, wiadomosc=f"Miło Cię poznać {self.gracz.imie}!")
-        wiad(1, False, True, wiadomosc="Czy to Twój pierwszy raz w tej grze?")
+        self.wiad(1, False, True, wiadomosc=f"Miło Cię poznać {self.gracz.imie}!")
+        self.wiad(1, False, True, wiadomosc="Czy to Twój pierwszy raz w tej grze?")
         temp = input("(1 - Tak, O - Nie) ?: ")
         while temp not in ["1", "0"]:
             temp = input("(1 - Tak, O - Nie) ?: ")
         if temp == "0":
-            wiad(1, False, True, wiadomosc="W takim razie zapraszamy do gry, miłej zabawy :D")
+            self.wiad(1, False, True, wiadomosc="W takim razie zapraszamy do gry, miłej zabawy :D")
             return
-        wiad(1, False, True, wiadomosc="Czy chiałbyś przejrzeć instrukcję przed rozpoczęciem rozgrywki?")
+        self.wiad(1, False, True, wiadomosc="Czy chiałbyś przejrzeć instrukcję przed rozpoczęciem rozgrywki?")
         temp = input("(1 - Tak, O - Nie) ?: ")
         while temp not in ["1", "0"]:
             temp = input("(1 - Tak, O - Nie) ?: ")
         if temp == "0":
-            wiad(1, False, True, wiadomosc="W takim razie zapraszamy do gry, miłej zabawy :D")
+            self.wiad(1, False, True, wiadomosc="W takim razie zapraszamy do gry, miłej zabawy :D")
             return
-        wiad(1, False, True, wiadomosc="Przykro nam instrukcja jeszcze nie gotowa, ale na pewno sobie poradzisz ^^")
+        self.wiad(1, False, True, wiadomosc="Przykro nam instrukcja jeszcze nie gotowa, ale na pewno sobie poradzisz ^^")
 
     def ciemnosc(self, a=5, czy_mig_mig=False):
         a += self.gracz.dodatkowe_swiatlo
@@ -599,24 +549,35 @@ class Gra:
         if not czy_pominac_intro:
             self.graj_intro()
         if not czy_pominac_ladowanie:
-            laduj(self.gracz.level)
+            self.laduj(self.gracz.level)
         self.mig_mig()
         while True:
             os.system("cls")
             # temp = input(self.interfejs())
             print(self.interfejs(), end="")
             temp = str(getch())[2]
-            if "x" in temp:
-                wiad(1, True)
+            if temp == "x":
+                self.wiad(1, True)
                 if self.autozapis:
                     self.save()
                 break
+            if temp == "p":
+                if self.town():
+                    return
+                else:
+                    self.gracz.level = 0
+                    self.level = 0
+                    self.new_level()
+                    if not czy_pominac_ladowanie:
+                        self.laduj(self.gracz.level)
+                    self.mig_mig()
+                    continue
             if self.gracz.ruch(self.mapa, temp):
                 if self.autozapis:
                     self.save()
                 self.new_level()
                 if not czy_pominac_ladowanie:
-                    laduj(self.gracz.level)
+                    self.laduj(self.gracz.level)
                 self.mig_mig()
 
     def pokaz(self):
@@ -838,6 +799,215 @@ class Gra:
                 self.gracz.ekwipunek[t[1].name][0] = t[0]
             self.gracz.level = 1
 
+    def wiad(self,level=1, czy_koniec=False, czy_inne=False, wiadomosc=""):
+        text = ""
+        match level:
+            case 1:
+                text = "Uważaj na głowę podczas swoich eksploracji!"
+            case 2:
+                text = "Pamiętaj, żeby zebrać wszystkie monety przed przejściem dalej!"
+            case 3:
+                text = "Za zebrane monety możesz kupić pomocne przedmioty w sklepie ^^"
+            case 4:
+                text = "Uważaj, jaskinie stają się coraz większe i ciemniejsze..."
+            case 5:
+                text = "Im głębsze jaskinie tym większa szansa na znalezienie cennych artefaktów."
+            case 6:
+                text = "Prawdziwy z Ciebie poszukiwacz przygód, byle tak dalej! :D"
+            case 7:
+                text = "W mrokach podziemii świeczki i pochodnie są bardzo przydatne ^^"
+            case 8:
+                text = "Większość przedmiotów działa tylko raz, ale są i takie których można używać wielokrotnie"
+        if czy_koniec:
+            text = "Dzięki za wspólną wędrówkę, do zobaczenia następnym razem ^^"
+        if czy_inne:
+            text = wiadomosc
+        if text == "":
+            return
+        temp = ""
+        for w in text.split():
+            os.system("cls")
+            print("\n" * 13)
+            temp = temp + " " + w
+            print(f"{temp:^120}")
+            print("\n" * 8)
+            time.sleep(0.3)
+        time.sleep(0.5)
+        if czy_koniec:
+            temp = "<kliknij [enter] aby wyjść>"
+            input(f"{temp:^120}")
+
+    def laduj(self,poziom=4, proc=0):
+        os.system("cls")
+        print("\n" * 12)
+        temp = f"Poziom {poziom}."
+        print(f"{temp:^120}")
+        if proc != 0:
+            temp = "|" + "-" * proc + " " * (30 - proc) + "|"
+            print(f"{temp:^120}")
+        print("\n" * 8)
+        time.sleep(random.random() / 2)
+        if proc < 30:
+            newproc = min(30, proc + random.randint(1, 8))
+            self.laduj(poziom, newproc)
+        else:
+            self.wiad(poziom)
+
+
+    def town(self):
+        budynek = []
+        budynek.append("""    1. Do Jaskiń    
+                    
+        [][][]      
+      []      []    
+    []          []  
+  []              []
+  []    [][][]    []
+  []    []  []    []
+  """)
+
+        budynek.append("""    2. Sklep    
+                
+  [][][][][][][]
+  []          []
+  []  []  []  []
+  []          []
+  []  []  []  []
+  []          []
+  []  []  []  []
+  []          []
+  []  []  []  []
+  []          []
+  []  []  []  []
+  []          []
+  []  [][][]  []
+  []  []  []  []
+          """)
+
+        budynek.append("""       3. Muzeum      
+                      
+  [][][][][][][][][][]
+   []              [] 
+  []   []      []   []
+   []              [] 
+  []   []      []   []
+   []              [] 
+  []     [][][]     []
+  []     []  []     []
+           """)
+
+        budynek.append("""    4. Wyjście
+                
+  [][][][][][][]
+  [] ->   EXIT[]
+  [] EXIT ->  []
+  []->  EXIT  []
+  [][][][][][][]
+    []      []
+    []      []
+        """)
+
+        pp = "        "
+        temp2 = ["      " for i in range(23)]
+        temp2[2] = "   Gdzie chcesz się teraz udać? (1-4)"
+        for i in range(0, len(budynek)):
+            q = budynek[i].split("\n")
+            c = max(len(q[len(q) - 2]), len(q[len(q) - 3]))
+            while len(q) < len(temp2):
+                q = [" " * c] + q
+
+            for i in range(len(temp2)):
+                temp2[i] = temp2[i] + q[i] + pp
+        temp2.pop()
+        temp2.append("  " + "[]" * 58)
+        temp2.append("  " + "  " * 58)
+        temp2.append("  " + "[]" * 58)
+        temp2.append("  " + "  " * 58)
+        temp2.append("  " + "  " * 58)
+        temp2.append("?:")
+
+        temp2 = "\n".join(temp2)
+        while True:
+            os.system("cls")
+            print(temp2, end="")
+            x = str(getch())[2]
+            while x not in "1234":
+                print(f"{x}\nKliknij [1], [2], [3] lub [4]\n?:", end="")
+                x = str(getch())[2]
+            if x == "4":
+                self.wiad(1, True)
+                if self.autozapis:
+                    self.save()
+                return True
+            if x == "1":
+                return False
+            if x == "2":
+                self.shop()
+            if x == "3":
+                self.museum()
+
+
+    def shop(self):
+        A = ekwipunek.AllItems()
+        temp = zip(A.items,A.price)
+        temp = list(filter(lambda x: x[0](self).czy_do_kupienia,temp))
+        temp.sort(key=lambda x:x[1])
+        chosen = 0
+        while (True):
+            temp = list(filter(lambda x: x[0](self).czy_jednorazowy or (not x[0](self).name in self.gracz.ekwipunek_lista and not x[0](self).czy_jednorazowy),temp))
+            os.system("cls")
+            print(f"\n\n\t\tWitamy w naszym sklepie, co checesz kupić?                                      Twoje monety: {self.gracz.coinbag}\n")
+            print(f" Sklep: {'Twój Ekwipunek:':>90}")
+            for i, t in enumerate(temp):
+                print(f"{' >> ' if chosen==i else '    '}{str(i+1)}. {t[0](self).name:.<30}{str(t[1]):.>4}", end="")
+                if i >= len(self.gracz.ekwipunek_lista):
+                    print("")
+                else:
+                    print(f"{' '*39}{str(i+1):>2}. { self.gracz.ekwipunek_lista[i]:.<25}{'x'+str(self.gracz.ekwipunek[self.gracz.ekwipunek_lista[i]][0]) } ")
+            if len(self.gracz.ekwipunek_lista) > len(temp):
+                for i in range(len(temp),len(self.gracz.ekwipunek_lista)):
+                    print(
+                        f"{' ' * 80}{str(i + 1):>2}. {self.gracz.ekwipunek_lista[i]:.<25}{'x' + str(self.gracz.ekwipunek[self.gracz.ekwipunek_lista[i]][0])} ")
+
+            print(f"\n\n\n{'Opis:':^118}")
+            print(f"{temp[chosen][0](self).description[:80]:^118}")
+            print(f"{temp[chosen][0](self).description[80:]:^118}")
+            print("\n\n\n")
+            print(f"{'Sterowanie: [w] '+chr(24) +'   [s] '+chr(25)+'   [enter] kup    [x] wyjście':^118}")
+            print(f"{'Możesz też używać klawiszy [1-'+ str(len(temp))+'] do szybszego kupowania':^118}")
+
+            g = getch()
+            ch = str(g)[2]
+            if ch == "x":
+                return
+            if ch == "w":
+                chosen = (chosen-1)%len(temp)
+            if ch == "s":
+                chosen = (chosen + 1) % len(temp)
+            if ch.isnumeric():
+                if int(ch) > 0 and int(ch) <= len(temp):
+                    if self.gracz.coinbag >= temp[int(ch)-1][1]:
+                        self.gracz.add_ekwipunek(temp[int(ch)-1][0](self))
+                        self.gracz.coinbag -= temp[int(ch)-1][1]
+                        if chosen == len(temp)-1:
+                            chosen -=1
+                    else:
+                        self.wiad(1,czy_inne=True,wiadomosc="Nie masz wystarczająco monet na ten przedmiot :c")
+            if str(g) == "b'\\r'":
+                if self.gracz.coinbag >= temp[chosen][1]:
+                    self.gracz.add_ekwipunek(temp[chosen][0](self))
+                    self.gracz.coinbag -= temp[chosen][1]
+                    if chosen == len(temp) - 1:
+                        chosen -= 1
+                else:
+                    self.wiad(1, czy_inne=True, wiadomosc="Nie masz wystarczająco monet na ten przedmiot :c")
+
+
+
+    def museum(self):
+        print("Muzeum w budowie")
+        time.sleep(2)
+
 
 if __name__ == '__main__':
     getch = _Getch()
@@ -852,7 +1022,7 @@ if __name__ == '__main__':
         G.gracz.add_ekwipunek(k.zawartosc)
     #G.gracz.ruch(G.mapa,"4")"""
  #   G.open()
-    G.graj()
+    G.graj(True,True)
     A = ekwipunek.AllItems()
     temp = [(A.items[i](G).name,A.price[i]) for i in range(len(A.items)) if A.items[i](G).czy_do_kupienia]
     temp.sort(key=lambda x: x[1])

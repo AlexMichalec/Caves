@@ -19,7 +19,7 @@ class AllItems():
         self.items = [WorekZlota, UniwersalnyKlucz, MalaSwieczka, Swieczka, DuzaSwieczka, Pochodnia, ButyDoBiegania,
                       MiksturaPredkosci, MiksturaMidasa, ButyFlasha, WorekNaMonety, NicAriadny, Drogowskaz]
         self.probability = [0.4, 0.3, 0.3, 0.2, 0.1, 0.1, 0, 0.2, 0.2, 0,0, 0.0, 0.1]
-        self.price = [-1, 40, 5, 10, 20, 50, 200, 30, 70, 999, 0, 2999, 140]
+        self.price = [-1, 40, 10, 20, 25, 50, 200, 30, 70, 999, 0, 2999, 140]
 
     def add(self, item, prob, price):
         self.items.append(item)
@@ -70,7 +70,7 @@ class Swieczka(Ekwipunek):
         self.description = "Pozwala rozjaśnic mroki jaskiń"
         self.value = 10
         self.price = 10
-        self.czy_do_kupienia = True
+        self.czy_do_kupienia = False
         self.czy_mozna_uzyc = True
         self.czy_uzywa_sie_automatycznie = False
         self.moc = 2
@@ -83,18 +83,22 @@ class MalaSwieczka(Swieczka):
     def __init__(self, gra):
         super(MalaSwieczka, self).__init__(gra)
         self.name = "Mała Świeczka"
+        self.description = "Pozwala nieco zwiększyć krąg widzenia."
         self.moc = 1
         self.value = 5
         self.price = 5
+        self.czy_do_kupienia = True
 
 
 class DuzaSwieczka(Swieczka):
     def __init__(self, gra):
         super(DuzaSwieczka, self).__init__(gra)
         self.name = "Duża Świeczka"
+        self.description = "Pozwala rozjaśnić ciemniejsze jaskinie i groty."
         self.moc = 3
         self.value = 15
         self.price = 15
+        self.czy_do_kupienia = True
 
 
 class Pochodnia(Swieczka):
@@ -104,7 +108,7 @@ class Pochodnia(Swieczka):
         self.description = "Rozjaśnia jaskinie znacznie skuteczniej niż świeczki"
         self.moc = 5
         self.value = 50
-
+        self.czy_do_kupienia = False
 
 class UniwersalnyKlucz(Ekwipunek):
     def __init__(self, gra):
@@ -126,7 +130,7 @@ class ButyDoBiegania(Ekwipunek):
     def __init__(self, gra):
         super(ButyDoBiegania, self).__init__(gra)
         self.name = "Buty do Biegania"
-        self.description = "Niepozorna para butów pozwalająca pokonywać podziemne korytarze szybciej niż normalnie. (Przedmiot wielokrotnego użytku, użyj akcji ponownie by dezaktywować.)"
+        self.description = "Niepozorna para butów pozwalająca pokonywać podziemne korytarze szybciej niż normalnie. (Przedmiot wielokrotnego użytku, użyj ponownie by dezaktywować.)"
         self.value = 200
         self.czy_jednorazowy = False
         self.czy_do_kupienia = True
@@ -147,7 +151,7 @@ class ButyFlasha(ButyDoBiegania):
     def __init__(self, gra):
         super(ButyFlasha, self).__init__(gra)
         self.name = "Buty Flasha"
-        self.description = "Super nowoczesne buciki do śmiagania z prędkością światła, niezbyt praktyczne, ale kto co lubi"
+        self.description = "Super nowoczesne buciki do śmigania z prędkością światła (Przedmiot wielokrotnego użytku, użyj ponownie aby dezaktywować"
         self.moc = 20
 
 
@@ -205,13 +209,15 @@ class WorekNaMonety(Ekwipunek):
     def __init__(self,gra):
         super(WorekNaMonety, self).__init__(gra)
         self.name = "Worek na Monety"
+        self.name = "To tutaj nosisz wszystkie swoje monety."
         self.czy_do_kupienia = False
+
 
 class NicAriadny(Ekwipunek):
     def __init__(self,gra):
         super(NicAriadny, self).__init__(gra)
         self.name = "Nić Ariadny"
-        self.description = "Wbrew pozorom to nie artefakt, pozwala znaleźć szybką drogę do wyjścia jeśli masz już wszystkie klucze ^^"
+        self.description = "Wbrew pozorom to nie artefakt, pozwala znaleźć szybką drogę do wyjścia jeśli masz już wszystkie klucze. (Przedmiot wielokrotnego użytku)"
         self.czy_do_kupienia = True
         self.czy_mozna_uzyc = True
         self.czy_jednorazowy = False
@@ -260,7 +266,7 @@ class Drogowskaz(NicAriadny):
     def __init__(self,gra):
         super(Drogowskaz, self).__init__(gra)
         self.name = "Drogowskaz"
-        self.description = "Sprytny przedmiot pozwalający na znalezienie drogi do wyjścia (po zebraniu wszystkich kluczy)"
+        self.description = "Sprytny przedmiot pozwalający na znalezienie drogi do wyjścia po zebraniu wszystkich kluczy."
         self.czy_jednorazowy = True
         self.value = 140
         self.price = 140
