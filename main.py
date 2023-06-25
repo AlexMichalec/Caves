@@ -4,6 +4,7 @@ import os
 import json
 from msvcrt import getch
 
+import artefakty
 import teksty
 import ekwipunek
 
@@ -248,6 +249,7 @@ class Gracz:
         self.dodatkowe_swiatlo = 0
         self.ekwipunek = {"Worek na monety": [1, ekwipunek.WorekNaMonety(self.gra)]}
         self.ekwipunek_lista = ["Worek na monety"]
+        self.artefakty = artefakty.Artefakty()
         self.czy_buty_zalozone = False
         self.aktywne = []
         self.dodatkowe_kroki = 0
@@ -342,9 +344,9 @@ class Gracz:
             if m == 1:
                 continue
             if m == 5:
-                artefakt = random.choice(ARTFEFACTS)
-                self.gra.wiad(1, False, czy_inne=True, wiadomosc=f"Brawo udało Ci się znaleźć: {artefakt}")
-                self.ostatnio_zebrane.append(artefakt)
+                artefakt = self.artefakty.find()
+                self.gra.wiad(False, czy_inne=True, wiadomosc=f"Brawo udało Ci się znaleźć: {artefakt[0]}")
+                self.ostatnio_zebrane.append(artefakt[0])
                 self.punkty += 20
             if m == 6:
                 kufer = ekwipunek.Kufer(self.gra, ekwipunek.AllItems())
@@ -403,6 +405,7 @@ class Gra:
         self.autozapis = True
         self.new_level()
 
+
     def intro_animation(self):
         ""
         for t in teksty.intros:
@@ -442,32 +445,32 @@ class Gra:
 
     def graj_intro(self):
         self.intro_animation()
-        self.wiad(1, False, True, wiadomosc="Witaj w Świecie Jaskiń Młody Podróżniku!")
+        self.wiad(False, True, wiadomosc="Witaj w Świecie Jaskiń Młody Podróżniku!")
         if os.path.isfile("save.data"):
-            self.wiad(1, False, True, wiadomosc="Czy chcesz wczytać zapisaną grę?")
+            self.wiad(False, True, wiadomosc="Czy chcesz wczytać zapisaną grę?")
             print("(1 - Tak, O - Nie) ?: ")
             ch = str(getch())[2]
             if ch == "1":
                 self.open()
                 return
-        self.wiad(1, False, True, wiadomosc="Podaj proszę swoje imię!")
+        self.wiad(False, True, wiadomosc="Podaj proszę swoje imię!")
         self.gracz.imie = input("?: ")
-        self.wiad(1, False, True, wiadomosc=f"Miło Cię poznać {self.gracz.imie}!")
-        self.wiad(1, False, True, wiadomosc="Czy to Twój pierwszy raz w tej grze?")
+        self.wiad(False, True, wiadomosc=f"Miło Cię poznać {self.gracz.imie}!")
+        self.wiad(False, True, wiadomosc="Czy to Twój pierwszy raz w tej grze?")
         temp = input("(1 - Tak, O - Nie) ?: ")
         while temp not in ["1", "0"]:
             temp = input("(1 - Tak, O - Nie) ?: ")
         if temp == "0":
-            self.wiad(1, False, True, wiadomosc="W takim razie zapraszamy do gry, miłej zabawy :D")
+            self.wiad(False, True, wiadomosc="W takim razie zapraszamy do gry, miłej zabawy :D")
             return
-        self.wiad(1, False, True, wiadomosc="Czy chiałbyś przejrzeć instrukcję przed rozpoczęciem rozgrywki?")
+        self.wiad(False, True, wiadomosc="Czy chiałbyś przejrzeć instrukcję przed rozpoczęciem rozgrywki?")
         temp = input("(1 - Tak, O - Nie) ?: ")
         while temp not in ["1", "0"]:
             temp = input("(1 - Tak, O - Nie) ?: ")
         if temp == "0":
-            self.wiad(1, False, True, wiadomosc="W takim razie zapraszamy do gry, miłej zabawy :D")
+            self.wiad(False, True, wiadomosc="W takim razie zapraszamy do gry, miłej zabawy :D")
             return
-        self.wiad(1, False, True, wiadomosc="Przykro nam instrukcja jeszcze nie gotowa, ale na pewno sobie poradzisz ^^")
+        self.wiad(False, True, wiadomosc="Przykro nam instrukcja jeszcze nie gotowa, ale na pewno sobie poradzisz ^^")
 
     def ciemnosc(self, a=5, czy_mig_mig=False):
         a += self.gracz.dodatkowe_swiatlo
@@ -525,6 +528,7 @@ class Gra:
         k = min((3 if self.level <= 5 else 5), self.level)
         a = random.choice(
             [0] * 3 + [1] * max(0, self.level - 3) + [2] * max(0, self.level - 5) + [3] * max(0, self.level - 7))
+        a = min(a,len(self.gracz.artefakty.do_zdobycia))
         e = random.choice(
             [0] * 1 + [1] * max(0, self.level) + [2] * max(0, self.level - 3) + [3] * max(0, self.level - 5) + [
                 4] * max(0, self.level - 7))
@@ -557,7 +561,7 @@ class Gra:
             print(self.interfejs(), end="")
             temp = str(getch())[2]
             if temp == "x":
-                self.wiad(1, True)
+                self.wiad( True)
                 if self.autozapis:
                     self.save()
                 break
@@ -799,8 +803,9 @@ class Gra:
                 self.gracz.ekwipunek[t[1].name][0] = t[0]
             self.gracz.level = 1
 
-    def wiad(self,level=1, czy_koniec=False, czy_inne=False, wiadomosc=""):
+    def wiad(self, czy_koniec=False, czy_inne=False, wiadomosc=""):
         text = ""
+        level = self.gracz.level
         match level:
             case 1:
                 text = "Uważaj na głowę podczas swoich eksploracji!"
@@ -851,7 +856,7 @@ class Gra:
             newproc = min(30, proc + random.randint(1, 8))
             self.laduj(poziom, newproc)
         else:
-            self.wiad(poziom)
+            self.wiad()
 
 
     def town(self):
@@ -935,7 +940,7 @@ class Gra:
                 print(f"{x}\nKliknij [1], [2], [3] lub [4]\n?:", end="")
                 x = str(getch())[2]
             if x == "4":
-                self.wiad(1, True)
+                self.wiad( True)
                 if self.autozapis:
                     self.save()
                 return True
@@ -992,7 +997,7 @@ class Gra:
                         if chosen == len(temp)-1:
                             chosen -=1
                     else:
-                        self.wiad(1,czy_inne=True,wiadomosc="Nie masz wystarczająco monet na ten przedmiot :c")
+                        self.wiad(czy_inne=True,wiadomosc="Nie masz wystarczająco monet na ten przedmiot :c")
             if str(g) == "b'\\r'":
                 if self.gracz.coinbag >= temp[chosen][1]:
                     self.gracz.add_ekwipunek(temp[chosen][0](self))
@@ -1000,13 +1005,62 @@ class Gra:
                     if chosen == len(temp) - 1:
                         chosen -= 1
                 else:
-                    self.wiad(1, czy_inne=True, wiadomosc="Nie masz wystarczająco monet na ten przedmiot :c")
+                    self.wiad(czy_inne=True, wiadomosc="Nie masz wystarczająco monet na ten przedmiot :c")
 
 
 
     def museum(self):
-        print("Muzeum w budowie")
-        time.sleep(2)
+        A = self.gracz.artefakty
+        temp_list = []
+        temp = ""
+
+        os.system("cls")
+        for k in A.kategorie.keys():
+            if temp.count("\n") + A.kategorie[k][0] > 30:
+                temp_list.append(temp)
+                temp = ""
+            temp+=" "*39 + "\n"
+            if A.kategorie[k][1]>0:
+                temp+=f"{k:^39}".upper()+"\n"
+            else:
+                temp += " "*39 + "\n"
+            for i, a in enumerate(A.kategorie[k]):
+                if i <= 1:
+                    continue
+                if (a,k) in A.posiadane:
+                    temp +=f"{str(i-1)+'. '+a:^39}" + "\n"
+                    continue
+                temp += " "*39 + "\n"
+
+
+
+
+        #print(temp_list)
+        if len(temp_list[0]) > len(temp_list[1]):
+            temp_list[1] += f"\n{'Kliknij dowolny klawisz, aby wyjść':^39}\n"
+        else:
+            temp_list[0] += f"\n{'Kliknij dowolny klawisz, aby wyjść':^39}\n"
+        new = ""
+        while temp.count("\n") < 14:
+            temp = " "*39 + "\n" +temp
+
+        temp = f"{'M U Z E U M':^39}\n"+" "*39 +f"\n{'M U Z E U M':^39}\n" + " "*39 + f"\n{'M U Z E U M':^39}\n" + \
+                " "*39 + f"\n{str(len(A.posiadane)) + '/' + str(len(A.posiadane)+len(A.do_zdobycia)):^39}\n"+temp
+
+        while temp.count("\n") < 28:
+            temp = " "*39 + "\n" +temp
+
+
+
+        for i in range(30):
+            new += (temp_list[0].split("\n")[i] if len(temp_list[0].split("\n"))>i else " "*39)+ \
+                   (temp.split("\n")[i] if len(temp.split("\n")) > i else " "*39)+ \
+                   (temp_list[1].split("\n")[i] if len(temp_list[1].split("\n")) > i else " " * 39) + "\n"
+        new = new.rstrip()
+      #  new.removesuffix("\n")
+        print(new)
+        getch()
+
 
 
 if __name__ == '__main__':
@@ -1022,9 +1076,5 @@ if __name__ == '__main__':
         G.gracz.add_ekwipunek(k.zawartosc)
     #G.gracz.ruch(G.mapa,"4")"""
  #   G.open()
-    G.graj(True,True)
-    A = ekwipunek.AllItems()
-    temp = [(A.items[i](G).name,A.price[i]) for i in range(len(A.items)) if A.items[i](G).czy_do_kupienia]
-    temp.sort(key=lambda x: x[1])
-    print(temp)
+    G.graj()
 
