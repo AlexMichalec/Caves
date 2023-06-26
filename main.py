@@ -402,7 +402,7 @@ class Gra:
         # self.mapa.add_monety(self.ilosc_monet)
         self.mapa.rysuj_test(2)
         self.gracz.monety_do_zebrania = 2
-        self.autozapis = True
+        self.autozapis = False
         self.new_level()
 
 
@@ -561,11 +561,10 @@ class Gra:
             print(self.interfejs(), end="")
             temp = str(getch())[2]
             if temp == "x":
-                self.wiad( True)
-                if self.autozapis:
-                    self.save()
-                break
+                if self.wiad( True):
+                    return
             if temp == "p":
+                self.laduj(czy_na_powierzchnie=True)
                 if self.town():
                     return
                 else:
@@ -576,6 +575,9 @@ class Gra:
                         self.laduj(self.gracz.level)
                     self.mig_mig()
                     continue
+            if temp == "m":
+                if self.menu():
+                    return
             if self.gracz.ruch(self.mapa, temp):
                 if self.autozapis:
                     self.save()
@@ -679,13 +681,13 @@ class Gra:
             "4. ..." if len(self.gracz.ekwipunek_lista) > 4 else "")
         temp[13] = temp[13] + f" a - krok w lewo " + chr(17)
         temp[14] = temp[14] + f" d - krok w prawo " + chr(16) + " " * 13 + f"Ostatnio zebrane:"
-        temp[15] = temp[15] + f"123 - użyj ekwipunku" + " " * 10 + \
+        temp[15] = temp[15] + f"123 - użyj przedmiotu" + " " * 10 + \
                    (f">> {self.gracz.ostatnio_zebrane[len(self.gracz.ostatnio_zebrane) - 1]}" if len(
                        self.gracz.ostatnio_zebrane) >= 1 else "")
-        temp[16] = temp[16] + f" 4 - pokaż ekwipunek" + " " * 10 + (
+        temp[16] = temp[16] + f" 4 - ekwipunek" + " " * 10 + (
             f">> {self.gracz.ostatnio_zebrane[len(self.gracz.ostatnio_zebrane) - 2]}" if len(
                 self.gracz.ostatnio_zebrane) >= 2 else "")
-        temp[17] = temp[17] + f" x - zakończ grę" + " " * 14 + (
+        temp[17] = temp[17] + f" m = pokaż menu" + " " * 14 + (
             f">> {self.gracz.ostatnio_zebrane[len(self.gracz.ostatnio_zebrane) - 3]}" if len(
                 self.gracz.ostatnio_zebrane) >= 3 else "")
         temp[18] = temp[18] + " " * 30 + ("..." if len(self.gracz.ostatnio_zebrane) > 3 else "")
@@ -804,6 +806,26 @@ class Gra:
             self.gracz.level = 1
 
     def wiad(self, czy_koniec=False, czy_inne=False, wiadomosc=""):
+        if czy_koniec:
+            os.system("cls")
+            print("\n" * 13)
+            print("Czy chesz zapisać swój postęp przed wyjściem?".center(118))
+            print("[1] Tak   [0] Nie   [x] Anuluj\n".center(118))
+            print("\n" * 7)
+            ch = str(getch())[2]
+            while ch not in "10x":
+                ch = str(getch())[2]
+            if ch == "1":
+                self.save()
+                self.wiad(czy_inne=True, wiadomosc="Gra została zapisana pomyślnie ^^")
+                self.wiad(czy_inne=True, wiadomosc="Dzięki za wspólną wędrówkę, do zobaczenia następnym razem ^^")
+                return True
+            if ch == "0":
+                self.wiad(czy_inne=True, wiadomosc="Dzięki za wspólną wędrówkę, do zobaczenia następnym razem ^^")
+                return True
+            if ch == "x":
+                return False
+
         text = ""
         level = self.gracz.level
         match level:
@@ -823,8 +845,6 @@ class Gra:
                 text = "W mrokach podziemii świeczki i pochodnie są bardzo przydatne ^^"
             case 8:
                 text = "Większość przedmiotów działa tylko raz, ale są i takie których można używać wielokrotnie"
-        if czy_koniec:
-            text = "Dzięki za wspólną wędrówkę, do zobaczenia następnym razem ^^"
         if czy_inne:
             text = wiadomosc
         if text == "":
@@ -838,14 +858,15 @@ class Gra:
             print("\n" * 8)
             time.sleep(0.3)
         time.sleep(0.5)
-        if czy_koniec:
-            temp = "<kliknij [enter] aby wyjść>"
-            input(f"{temp:^120}")
 
-    def laduj(self,poziom=4, proc=0):
+
+
+    def laduj(self,poziom=4, proc=0, czy_na_powierzchnie = False):
         os.system("cls")
         print("\n" * 12)
         temp = f"Poziom {poziom}."
+        if czy_na_powierzchnie:
+            temp = "Na powierzchnię..."
         print(f"{temp:^120}")
         if proc != 0:
             temp = "|" + "-" * proc + " " * (30 - proc) + "|"
@@ -854,9 +875,10 @@ class Gra:
         time.sleep(random.random() / 2)
         if proc < 30:
             newproc = min(30, proc + random.randint(1, 8))
-            self.laduj(poziom, newproc)
+            self.laduj(poziom, newproc, czy_na_powierzchnie)
         else:
-            self.wiad()
+            if not czy_na_powierzchnie:
+                self.wiad()
 
 
     def town(self):
@@ -940,10 +962,8 @@ class Gra:
                 print(f"{x}\nKliknij [1], [2], [3] lub [4]\n?:", end="")
                 x = str(getch())[2]
             if x == "4":
-                self.wiad( True)
-                if self.autozapis:
-                    self.save()
-                return True
+                if self.wiad( True):
+                    return True
             if x == "1":
                 return False
             if x == "2":
@@ -1061,6 +1081,58 @@ class Gra:
         print(new)
         getch()
 
+    def menu(self):
+        chosen = 0
+        menu_texts = ["Powrót do Gry", "Zapisz Grę", "Wczytaj Grę", "Ekwipunek", "Wróć na Powierzchnię", "Zamknij Grę"]
+        while True:
+
+            os.system("cls")
+            print("\n"*7)
+            print("MENU".center(118))
+            print("")
+            for i, t in enumerate(menu_texts):
+                temp = (">> " if chosen == i else "") + str(i+1) + ". " + t + (" <<" if chosen == i else "")
+                print(temp.center(118))
+            print("\n"*12)
+            print(f"Sterowanie: [w] {chr(24)}   [s] {chr(25)}  [enter] wybór".center(118))
+            print(f"Możesz też wybierać za pomocą klawiszy [1-6]".center(118))
+            g = str(getch())
+            ch = g[2]
+            if ch == "w":
+                chosen = (chosen-1)%len(menu_texts)
+            if ch == "s":
+                chosen = (chosen+1)%len(menu_texts)
+
+            if g == "b'\\r'" and chosen == 0 or ch == "1": #BACK TO THE GAME
+                return False
+            if g == "b'\\r'" and chosen == 1 or ch == "2": #SAVE
+                self.save()
+                self.wiad(czy_inne=True,wiadomosc="Gra została zapisana :D")
+            if g == "b'\\r'" and chosen == 2 or ch == "3": #LOAD
+                self.open()
+                self.wiad(czy_inne=True, wiadomosc="Gra została wczytana ^^")
+                ch = "5"
+            if g == "b'\\r'" and chosen == 3 or ch == "4": #EQUIPMENT
+                self.gracz.ruch(self.mapa,"4")
+                return False
+                pass
+            if g == "b'\\r'" and chosen == 4 or ch == "5": #BACK TO THE SURFACE
+                self.laduj(czy_na_powierzchnie=True)
+                if self.town():
+                    return True
+                else:
+                    self.gracz.level = 0
+                    self.level = 0
+                    self.new_level()
+                    self.laduj(self.gracz.level)
+                    self.mig_mig()
+                    return False
+            if g == "b'\\r'" and chosen == 5 or ch == 6: #EXIT
+                if self.wiad(czy_koniec=True):
+                    return True
+
+
+
 
 
 if __name__ == '__main__':
@@ -1076,5 +1148,6 @@ if __name__ == '__main__':
         G.gracz.add_ekwipunek(k.zawartosc)
     #G.gracz.ruch(G.mapa,"4")"""
  #   G.open()
+  #  G.menu()
     G.graj()
 

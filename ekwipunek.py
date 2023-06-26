@@ -209,7 +209,7 @@ class WorekNaMonety(Ekwipunek):
     def __init__(self,gra):
         super(WorekNaMonety, self).__init__(gra)
         self.name = "Worek na Monety"
-        self.name = "To tutaj nosisz wszystkie swoje monety."
+        self.description = "To tutaj nosisz wszystkie swoje monety."
         self.czy_do_kupienia = False
 
 
