@@ -37,6 +37,13 @@ class Artefakty():
                 r = r[:-1]
         return tab
 
+    def load_from_save(self, array):
+        for a in array:
+            if a in self.do_zdobycia:
+                self.do_zdobycia.remove(a)
+                self.posiadane.append(a)
+                self.kategorie[a[1]][1] += 1
+
 
 
 

@@ -348,6 +348,8 @@ class Gracz:
                 self.gra.wiad(False, czy_inne=True, wiadomosc=f"Brawo udało Ci się znaleźć: {artefakt[0]}")
                 self.ostatnio_zebrane.append(artefakt[0])
                 self.punkty += 20
+                if len(self.artefakty.do_zdobycia):
+                    self.gra.wiad(czy_inne=True, wiadomosc="Gratulacje! Udało Ci się zebrać wszystkie artefakty :D")
             if m == 6:
                 kufer = ekwipunek.Kufer(self.gra, ekwipunek.AllItems())
                 kufer.open()
@@ -457,20 +459,50 @@ class Gra:
         self.gracz.imie = input("?: ")
         self.wiad(False, True, wiadomosc=f"Miło Cię poznać {self.gracz.imie}!")
         self.wiad(False, True, wiadomosc="Czy to Twój pierwszy raz w tej grze?")
-        temp = input("(1 - Tak, O - Nie) ?: ")
+        temp = input("(1 - Tak, 0 - Nie) ?: ")
         while temp not in ["1", "0"]:
-            temp = input("(1 - Tak, O - Nie) ?: ")
+            temp = input("(1 - Tak, 0 - Nie) ?: ")
         if temp == "0":
             self.wiad(False, True, wiadomosc="W takim razie zapraszamy do gry, miłej zabawy :D")
             return
         self.wiad(False, True, wiadomosc="Czy chiałbyś przejrzeć instrukcję przed rozpoczęciem rozgrywki?")
-        temp = input("(1 - Tak, O - Nie) ?: ")
+        temp = input("(1 - Tak, 0 - Nie) ?: ")
         while temp not in ["1", "0"]:
-            temp = input("(1 - Tak, O - Nie) ?: ")
+            temp = input("(1 - Tak, 0 - Nie) ?: ")
         if temp == "0":
             self.wiad(False, True, wiadomosc="W takim razie zapraszamy do gry, miłej zabawy :D")
             return
-        self.wiad(False, True, wiadomosc="Przykro nam instrukcja jeszcze nie gotowa, ale na pewno sobie poradzisz ^^")
+        os.system("cls")
+        print(f"""
+        
+                                            Instrukcja:
+                                            
+        Masz na imię {self.gracz.imie}. Budzisz się w małym spokojnym miasteczku gdzieś na skraju 
+        cywilizacji. Przy sobie znajdujesz parę starych map, plecak oraz mały woreczek na monety 
+        (na razie pusty). Twoim wielkim marzeniem jest zostać światowej klasy poszukiwaczem przygód, 
+        jednak by tego dokonać musisz znaleźć odpowiednich sponsorów (tak niestety kapitalizm dotarł 
+        również tutaj). Powoli podnosisz się na skraj łóżka i przecierasz oczy, na szafce nocnej
+        zauważasz list od lokalnego muzeum. Proszą Cię o pomoc w powiększeniu swojej kolekcji,
+        podobno wiele cennych przedmiotów można znaleźć w tutejszych jaskiniach. Wiesz o tym dobrze
+        w końcu twój ojciec był archeologiem, a matka spędziła pół życia w kopalni. Wyglądasz za 
+        okno i czujesz, że to właśnie ten dzień, zakładasz szybko resztę ubrań i czym prędzej 
+        ruszasz na swoją pierwszą wielką przygodę.
+        
+        Po jaskiniach możesz poruszać się za pomocą klawiszy [w][s][a][d], aby zejść na niższy poziom
+        potrzebujesz zebrać odpowiednią liczbę kluczy(k), dodatkowo na ziemii pełno jest złotych monet
+        (1-9) za które możesz póżniej kupić użyteczne przedmioty w lokalnym sklepie. Im niżej będziesz 
+        schodzić tym większa szansa na znalezienie drogocennych artefaktów(A), które z pewnością
+        przyciągną sponsorów do muzeum, a zatem również do Ciebie. Musisz mieć jednak na uwadze,
+        że im głębiej będziesz schodzić tym ciemniejsze będzie Twoje otoczenie, pamiętaj by zabrać
+        ze sobą odpowiedni ekwipunek(E). Jeśli poczujesz, że masz już dość eksploracji na ten dzień
+        możesz zapisać grę, pamiętaj tylko, że po wczytaniu zaczniesz od poziomu 1. (nie będziesz
+        przecież spać pod ziemią!) 
+        
+                    Nie trać już więcej czasu i ruszaj na wyprawę w głąb ziemii!
+        
+                            <kliknij dowolny klawisz by rozpocząć>
+        """)
+        getch()
 
     def ciemnosc(self, a=5, czy_mig_mig=False):
         a += self.gracz.dodatkowe_swiatlo
@@ -508,17 +540,33 @@ class Gra:
     def aktualizuj_range(self):
         p = self.gracz.punkty
 
-        self.gracz.ranga = "Tester Junior"
+        self.gracz.ranga = "Baby"
         if p >= 10:
-            self.gracz.ranga = "Tester"
+            self.gracz.ranga = "Początkujący"
         if p >= 50:
-            self.gracz.ranga = "Tester Senior"
+            self.gracz.ranga = "Mały Jaskiniowiec"
         if p >= 100:
-            self.gracz.ranga = "Poszukiwacz Przygód"
+            self.gracz.ranga = "Młody Eksplorator"
         if p >= 200:
-            self.gracz.ranga = "Profesjonalny Grotołaz"
-        if p >= 666:
+            self.gracz.ranga = "Grotołaz"
+        if p >= 500:
+            self.gracz.ranga = "Poszukiwacz Przygód"
+        if p == 666:
             self.gracz.ranga = "Dziecko Szatana"
+        if p >= 1000:
+            self.gracz.ranga = "Znawca Jaskiń"
+        if p >= 2000:
+            self.gracz.ranga = "Jaskiniowa Dora"
+        if p >= 1500:
+            self.gracz.ranga = "Indiana Jones Junior"
+        if p >= 2000:
+            self.gracz.ranga = "Nowa Lara Croft"
+        if p >= 2500:
+            self.gracz.ranga = "Profesjonalny Grotołaz"
+        if p >= 5000:
+            self.gracz.ranga = "Złoty Kapelusz"
+        if p >= 10000:
+            self.gracz.ranga = "no-life"
 
     def new_level(self):
         self.level += 1
@@ -684,10 +732,10 @@ class Gra:
         temp[15] = temp[15] + f"123 - użyj przedmiotu" + " " * 10 + \
                    (f">> {self.gracz.ostatnio_zebrane[len(self.gracz.ostatnio_zebrane) - 1]}" if len(
                        self.gracz.ostatnio_zebrane) >= 1 else "")
-        temp[16] = temp[16] + f" 4 - ekwipunek" + " " * 10 + (
+        temp[16] = temp[16] + f" 4 - ekwipunek" + " " * 17 + (
             f">> {self.gracz.ostatnio_zebrane[len(self.gracz.ostatnio_zebrane) - 2]}" if len(
                 self.gracz.ostatnio_zebrane) >= 2 else "")
-        temp[17] = temp[17] + f" m = pokaż menu" + " " * 14 + (
+        temp[17] = temp[17] + f" m - pokaż menu" + " " * 16 + (
             f">> {self.gracz.ostatnio_zebrane[len(self.gracz.ostatnio_zebrane) - 3]}" if len(
                 self.gracz.ostatnio_zebrane) >= 3 else "")
         temp[18] = temp[18] + " " * 30 + ("..." if len(self.gracz.ostatnio_zebrane) > 3 else "")
@@ -782,6 +830,8 @@ class Gra:
             temp = [(x[0], x[1].name) for x in list(self.gracz.ekwipunek.values())]
             myFile.write(str(temp))
             myFile.write("\n")
+            myFile.write(str(self.gracz.artefakty.posiadane))
+            myFile.write("\n")
 
     def open(self):
         if not os.path.isfile("save.data"):
@@ -804,6 +854,14 @@ class Gra:
                 self.gracz.add_ekwipunek(t[1])
                 self.gracz.ekwipunek[t[1].name][0] = t[0]
             self.gracz.level = 1
+            temp = myFile.readline()
+            if "(" not in temp:
+                return
+            temp = temp[3:-4].split("'), ('")
+            temp = [(x.split("', '")[0], x.split("', '")[1]) for x in temp]
+            self.gracz.artefakty = artefakty.Artefakty()
+            self.gracz.artefakty.load_from_save(temp)
+
 
     def wiad(self, czy_koniec=False, czy_inne=False, wiadomosc=""):
         if czy_koniec:
@@ -817,7 +875,7 @@ class Gra:
                 ch = str(getch())[2]
             if ch == "1":
                 self.save()
-                self.wiad(czy_inne=True, wiadomosc="Gra została zapisana pomyślnie ^^")
+                self.wiad(czy_inne=True, wiadomosc="Gra została pomyślnie zapisana ^^")
                 self.wiad(czy_inne=True, wiadomosc="Dzięki za wspólną wędrówkę, do zobaczenia następnym razem ^^")
                 return True
             if ch == "0":
@@ -1107,7 +1165,7 @@ class Gra:
                 return False
             if g == "b'\\r'" and chosen == 1 or ch == "2": #SAVE
                 self.save()
-                self.wiad(czy_inne=True,wiadomosc="Gra została zapisana :D")
+                self.wiad(czy_inne=True,wiadomosc="Gra została pomyślnie zapisana :D")
             if g == "b'\\r'" and chosen == 2 or ch == "3": #LOAD
                 self.open()
                 self.wiad(czy_inne=True, wiadomosc="Gra została wczytana ^^")
@@ -1149,5 +1207,6 @@ if __name__ == '__main__':
     #G.gracz.ruch(G.mapa,"4")"""
  #   G.open()
   #  G.menu()
+    G.gracz.punkty = 5555
     G.graj()
 
