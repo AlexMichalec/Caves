@@ -1,6 +1,8 @@
 import os
 import random
 import abc
+import time
+from msvcrt import getch
 
 
 class Kufer():
@@ -17,9 +19,9 @@ class Kufer():
 class AllItems():
     def __init__(self):
         self.items = [WorekZlota, UniwersalnyKlucz, MalaSwieczka, Swieczka, DuzaSwieczka, Pochodnia, ButyDoBiegania,
-                      MiksturaPredkosci, MiksturaMidasa, ButyFlasha, WorekNaMonety, NicAriadny, Drogowskaz]
-        self.probability = [0.4, 0.3, 0.3, 0.2, 0.1, 0.1, 0, 0.2, 0.2, 0,0, 0.0, 0.1]
-        self.price = [-1, 40, 10, 20, 25, 50, 200, 30, 70, 999, 0, 2999, 140]
+                      MiksturaPredkosci, MiksturaMidasa, ButyFlasha, WorekNaMonety, NicAriadny, Drogowskaz, Dynamit]
+        self.probability = [0.4, 0.3, 0.3, 0.2, 0.1, 0.1, 0, 0.2, 0.2, 0,0, 0.0, 0.1, 0.05]
+        self.price = [-1, 40, 10, 20, 25, 50, 200, 30, 70, 999, 0, 2999, 140, 110]
 
     def add(self, item, prob, price):
         self.items.append(item)
@@ -230,7 +232,7 @@ class NicAriadny(Ekwipunek):
             return False
         x = self.gra.gracz.x
         y = self.gra.gracz.y
-        wazne = (0, 2, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+        wazne = (0, 2, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19)
         kolejka = [(x, y,[])]
         nms = []
         while len(kolejka) > 0:
@@ -270,3 +272,39 @@ class Drogowskaz(NicAriadny):
         self.czy_jednorazowy = True
         self.value = 140
         self.price = 140
+
+class Dynamit(Ekwipunek):
+    def __init__(self, gra):
+        super(Dynamit, self).__init__(gra)
+        self.name = "Dynamit"
+        self.description = "Pozwala usunąć z planszy jeden skalny blok i na chwilę rozjaśnia jaskinię"
+        self.czy_jednorazowy = True
+        self.czy_mozna_uzyc = True
+        self.czy_do_kupienia = True
+        self.czy_uzywa_sie_automatycznie = False
+
+    def use(self):
+        print("Który blok chcesz spróbować wysadzić?")
+        temp = str(getch())[2]
+        while temp not in "wasd":
+            print("Kliknij [w], [a], [s] lub [d]")
+            temp = str(getch())[2]
+        x = -1 if temp == "w" else 1 if temp == "s" else 0
+        y = -1 if temp == "a" else 1 if temp == "d" else 0
+        xd = self.gra.gracz.x + x
+        yd = self.gra.gracz.y + y
+        if self.gra.mapa.dl < xd or xd<=0 or yd<=0 or self.gra.mapa.sz <yd or self.gra.mapa.tab[xd][yd] != 1:
+            print("Nie możesz tego wysadzić :c")
+            time.sleep(1)
+            self.gra.gracz.add_ekwipunek(Dynamit(self.gra))
+            return False
+
+        self.gra.mapa.tab[xd][yd] = 8
+
+        self.gra.gracz.dodatkowe_swiatlo += 10
+        os.system("cls")
+        print(self.gra.interfejs())
+        print("BOOOOOOM!!!")
+        time.sleep(2)
+        self.gra.gracz.dodatkowe_swiatlo -= 10
+        self.gra.mapa.tab[xd][yd] = random.choices((0,5,6),(0.7,0.1,0.2),k=1)[0] #(empty, artefacts, equipment)

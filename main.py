@@ -348,7 +348,7 @@ class Gracz:
                 self.gra.wiad(False, czy_inne=True, wiadomosc=f"Brawo udało Ci się znaleźć: {artefakt[0]}")
                 self.ostatnio_zebrane.append(artefakt[0])
                 self.punkty += 20
-                if len(self.artefakty.do_zdobycia):
+                if len(self.artefakty.do_zdobycia) == 0:
                     self.gra.wiad(czy_inne=True, wiadomosc="Gratulacje! Udało Ci się zebrać wszystkie artefakty :D")
             if m == 6:
                 kufer = ekwipunek.Kufer(self.gra, ekwipunek.AllItems())
@@ -570,8 +570,8 @@ class Gra:
 
     def new_level(self):
         self.level += 1
-        x = 4 + self.level * 3
-        y = 4 + self.level * 4
+        x = random.randint(2,10) + self.level * random.randint(2,4)
+        y = random.randint(2,10) + self.level * random.randint(3,5)
         m = 0 + self.level * 2
         k = min((3 if self.level <= 5 else 5), self.level)
         a = random.choice(
@@ -1042,7 +1042,7 @@ class Gra:
             print(f"\n\n\t\tWitamy w naszym sklepie, co checesz kupić?                                      Twoje monety: {self.gracz.coinbag}\n")
             print(f" Sklep: {'Twój Ekwipunek:':>90}")
             for i, t in enumerate(temp):
-                print(f"{' >> ' if chosen==i else '    '}{str(i+1)}. {t[0](self).name:.<30}{str(t[1]):.>4}", end="")
+                print(f"{' >> ' if chosen==i else '    '}{str(i+1)}. {t[0](self).name:.<30}{str(t[1]):.>5}", end="")
                 if i >= len(self.gracz.ekwipunek_lista):
                     print("")
                 else:
@@ -1057,7 +1057,7 @@ class Gra:
             print(f"{temp[chosen][0](self).description[80:]:^118}")
             print("\n\n\n")
             print(f"{'Sterowanie: [w] '+chr(24) +'   [s] '+chr(25)+'   [enter] kup    [x] wyjście':^118}")
-            print(f"{'Możesz też używać klawiszy [1-'+ str(len(temp))+'] do szybszego kupowania':^118}")
+            print(f"{'Możesz też używać klawiszy [1-'+ str(min(9,len(temp)))+'] do szybszego kupowania':^118}")
 
             g = getch()
             ch = str(g)[2]
@@ -1196,17 +1196,5 @@ class Gra:
 if __name__ == '__main__':
     getch = _Getch()
     G = Gra()
-    """""
-    bdb = ekwipunek.ButyDoBiegania(G)
-  #  G.gracz.add_ekwipunek(bdb)
-    bf = ekwipunek.ButyFlasha(G)
- #   G.gracz.add_ekwipunek(bf)
-    for i in range(20):
-        k = ekwipunek.Kufer(G,ekwipunek.AllItems())
-        G.gracz.add_ekwipunek(k.zawartosc)
-    #G.gracz.ruch(G.mapa,"4")"""
- #   G.open()
-  #  G.menu()
-    G.gracz.punkty = 5555
-    G.graj()
+    G.graj(True, True)
 
